@@ -61,9 +61,9 @@ public class MainLauncher {
                             // Commenta temporaneamente finché non crei GuiInterface
                             // GuiInterface.run();
                             System.out.println("🚧 Interfaccia grafica in sviluppo...");
-                            GuiInterface.run();
                             System.out.println("🔄 Tornando al menu principale...");
                             System.out.println();
+                            GuiInterface.run();
                         } catch (InterruptedException e) {
                             System.out.println("❌ Errore durante l'avvio dell'interfaccia grafica");
                             Thread.currentThread().interrupt(); // Ripristina il flag di interruzione
