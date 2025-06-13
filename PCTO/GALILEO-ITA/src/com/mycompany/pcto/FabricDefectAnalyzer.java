@@ -28,11 +28,11 @@ public class FabricDefectAnalyzer {
 
     public static String analyzeImageForDefects(String imagePath, String fabricType) throws Exception {
         System.out.println("🔍 Caricamento immagine: " + imagePath);
-        BufferedImage image = loadAndValidateImage(imagePath);
-        System.out.println("🔄 Conversione immagine in formato base64...");
-        String base64Image = imageToBase64(image);
+//        BufferedImage image = loadAndValidateImage(imagePath);
+//        System.out.println("🔄 Conversione immagine in formato base64...");
+//        String base64Image = imageToBase64(image);
 
-        String prompt = createFabricAnalysisPrompt(fabricType, base64Image);
+        String prompt = createFabricAnalysisPrompt(fabricType, imagePath);
 
         System.out.println("🚀 Invio richiesta a Gemma3:4b");
         long gemmaStart = System.currentTimeMillis();
@@ -68,18 +68,23 @@ public class FabricDefectAnalyzer {
 
     private static String createFabricAnalysisPrompt(String fabricType, String base64Image) {
         return String.format(
-            "Sei un esperto quality inspector specializzato nell'analisi di tessuti. " +
-            "CERCA SPECIFICAMENTE:\n" +
-            "• DIFETTI STRUTTURALI: strappi, buchi, tagli, usura eccessiva\n" +
-            "• DIFETTI DI COLORE: macchie, scolorimenti, variazioni cromatiche anomale\n" +
-            "• DEFORMAZIONI: pieghe permanenti, ondulazioni, distorsioni\n" +
-            "• CONTAMINAZIONI: residui, pelucchi, corpi estranei\n\n" +
+            "Sei un esperto quality inspector che fa parte dell'azienda Galileo Italia SRL specializzato nell'analisi di tessuti. " +
+            "CERCA SPECIFICAMENTE tutti i difetti del tipo usurazione, scolorimenti, macchie, tagli,  \n" +  
             "RISPONDI IN ITALIANO con un report dettagliato e professionale.\n\n" +
             "Immagine da analizzare: data:image/jpeg;base64,%s", 
             base64Image
         );
     }
 
+//    private static String createFabricAnalysisPrompt(String fabricType, String base64Image) {
+//        return String.format(
+//            "che cosa rappresenta questa immagine?" +
+//            "RISPONDI IN ITALIANO con un report dettagliato e professionale.\n\n" +
+//            "Immagine da analizzare: data:image/jpeg;base64,%s", 
+//            base64Image
+//        );
+//    }
+    
     private static String sendRequestToModel(String model, String prompt) throws Exception {
         Map<String, Object> request = new HashMap<>();
         request.put("model", model);
@@ -109,7 +114,7 @@ public class FabricDefectAnalyzer {
 
     private static Map<String, Object> createMistralOptions() {
         Map<String, Object> options = new HashMap<>();
-        options.put("temperature", 0.3);
+        options.put("temperature", 0.1);
         options.put("top_p", 0.8);
         options.put("top_k", 40);
         return options;
@@ -126,12 +131,12 @@ public class FabricDefectAnalyzer {
         }
     }
 
-    private static String imageToBase64(BufferedImage image) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(image, "jpg", baos);
-        byte[] imageBytes = baos.toByteArray();
-        return Base64.getEncoder().encodeToString(imageBytes);
-    }
+//    private static String imageToBase64(BufferedImage image) throws IOException {
+//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        ImageIO.write(image, "jpg", baos);
+//        byte[] imageBytes = baos.toByteArray();
+//        return Base64.getEncoder().encodeToString(imageBytes);
+//    }
 
     private static String cleanPath(String path) {
         if (path.startsWith("\"") && path.endsWith("\"")) {
