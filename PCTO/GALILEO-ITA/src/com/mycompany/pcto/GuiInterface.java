@@ -1,325 +1,325 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package com.mycompany.pcto;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.*;
-import java.net.URI;
-import java.net.http.*;
-import java.util.*;
-import javax.imageio.ImageIO;
-import java.util.Base64;
-import com.fasterxml.jackson.databind.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.concurrent.ExecutionException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
 
 /**
- *
- * @author lollo
+ * Interfaccia grafica per l'analisi dei difetti nei tessuti
+ * Progetto PCTO - NetBeans/Ant
+ * 
+ * @author PCTO Team
+ * @version 2.0
  */
-public class GuiInterface extends javax.swing.JFrame {
+public class GuiInterface {
     
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(GuiInterface.class.getName());
-
-    static void run() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    private static JFrame frame;
+    private static JLabel imageLabel;
+    private static JTextArea resultArea;
+    private static JButton analyzeButton;
+    private static JComboBox<String> fabricTypeCombo;
+    private static JLabel statusLabel;
+    private static String selectedImagePath;
+    
+    public static void run() {
+        SwingUtilities.invokeLater(() -> {
+            try {
+            } catch (Exception e) {
+                // Usa il look and feel predefinito
+            }
+            createAndShowGUI();
+        });
     }
     
-    // Componenti UI
-    private JTextField imagePathField;
-    private JComboBox<String> fabricTypeCombo;
-    private JTextArea resultArea;
-    private JButton analyzeButton;
-    private JButton browseButton;
-    private JLabel statusLabel;
-    private JProgressBar progressBar;
-    private JLabel imagePreviewLabel;
-    
-    /**
-     * Creates new form GuiInterface
-     */
-    public GuiInterface() {
-        initComponents();
-        initCustomComponents();
-        setupLayout();
-        setupEventHandlers();
-    }
-    
-        private void initCustomComponents() {
-        // Inizializzazione componenti personalizzati
-        imagePathField = new JTextField(30);
-        browseButton = new JButton("Sfoglia");
+    private static void createAndShowGUI() {
+        frame = new JFrame("🧵 Analizzatore Difetti Tessuti - PCTO v2.0");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setSize(1000, 700);
+        frame.setLocationRelativeTo(null);
         
-        String[] fabricTypes = {"generico", "cotone", "lino", "seta", "lana", "sintetico", "jeans", "poliestere"};
-        fabricTypeCombo = new JComboBox<>(fabricTypes);
+        // Listener per quando la finestra viene chiusa
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent windowEvent) {
+                System.out.println("\n🔄 Interfaccia grafica chiusa. Tornando al menu principale...\n");
+            }
+        });
         
-        analyzeButton = new JButton("Analizza Tessuto");
-        analyzeButton.setEnabled(false);
-        
-        resultArea = new JTextArea(15, 50);
-        resultArea.setEditable(false);
-        
-        statusLabel = new JLabel("Pronto per l'analisi");
-        progressBar = new JProgressBar();
-        progressBar.setVisible(false);
-        
-        imagePreviewLabel = new JLabel();
-        imagePreviewLabel.setPreferredSize(new Dimension(200, 200));
-        imagePreviewLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-    }
-
-    private void setupLayout() {
-        // Rimuovi il layout generato automaticamente
-        getContentPane().removeAll();
-        getContentPane().setLayout(new BorderLayout(10, 10));
+        // Panel principale
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
         
         // Header
-        JPanel headerPanel = new JPanel();
-        headerPanel.setBackground(new Color(70, 130, 180));
-        headerPanel.setPreferredSize(new Dimension(0, 80));
+        JPanel headerPanel = createHeaderPanel();
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
         
-        JLabel titleLabel = new JLabel("ANALIZZATORE DIFETTI TESSUTI", JLabel.CENTER);
+        // Panel centrale
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        
+        // Panel sinistro - Controlli
+        JPanel leftPanel = createControlPanel();
+        centerPanel.add(leftPanel, BorderLayout.WEST);
+        
+        // Panel destro - Risultati
+        JPanel rightPanel = createResultPanel();
+        centerPanel.add(rightPanel, BorderLayout.CENTER);
+        
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
+        
+        // Status bar
+        JPanel statusPanel = createStatusPanel();
+        mainPanel.add(statusPanel, BorderLayout.SOUTH);
+        
+        frame.add(mainPanel);
+        frame.setVisible(true);
+    }
+    
+    private static JPanel createHeaderPanel() {
+        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        headerPanel.setBackground(new Color(70, 130, 180));
+        
+        JLabel titleLabel = new JLabel("🧵 ANALIZZATORE DIFETTI TESSUTI");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         titleLabel.setForeground(Color.WHITE);
-        headerPanel.add(titleLabel);
         
-        // Pannello principale
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JLabel subtitleLabel = new JLabel("PCTO - Powered by Gemma3:4b AI");
+        subtitleLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        subtitleLabel.setForeground(Color.LIGHT_GRAY);
         
-        // Pannello input
-        JPanel inputPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.WEST;
+        JPanel titlePanel = new JPanel(new GridLayout(2, 1));
+        titlePanel.setBackground(new Color(70, 130, 180));
+        titlePanel.add(titleLabel);
+        titlePanel.add(subtitleLabel);
         
-        gbc.gridx = 0; gbc.gridy = 0;
-        inputPanel.add(new JLabel("Percorso immagine:"), gbc);
-        
-        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1.0;
-        inputPanel.add(imagePathField, gbc);
-        
-        gbc.gridx = 2; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
-        inputPanel.add(browseButton, gbc);
-        
-        gbc.gridx = 0; gbc.gridy = 1;
-        inputPanel.add(new JLabel("Tipo tessuto:"), gbc);
-        
-        gbc.gridx = 1; gbc.gridwidth = 2;
-        inputPanel.add(fabricTypeCombo, gbc);
-        
-        // Pannello anteprima immagine
-        JPanel previewPanel = new JPanel(new BorderLayout());
-        previewPanel.add(new JLabel("Anteprima immagine:"), BorderLayout.NORTH);
-        previewPanel.add(imagePreviewLabel, BorderLayout.CENTER);
-        
-        // Pannello inferiore
-        JPanel bottomPanel = new JPanel(new BorderLayout());
-        bottomPanel.add(analyzeButton, BorderLayout.CENTER);
-        bottomPanel.add(statusLabel, BorderLayout.SOUTH);
-        bottomPanel.add(progressBar, BorderLayout.NORTH);
-        
-        // Aggiungi tutto al pannello principale
-        mainPanel.add(inputPanel, BorderLayout.NORTH);
-        mainPanel.add(new JScrollPane(resultArea), BorderLayout.CENTER);
-        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
-        
-        // Aggiungi i pannelli al frame
-        getContentPane().add(headerPanel, BorderLayout.NORTH);
-        getContentPane().add(mainPanel, BorderLayout.CENTER);
-        getContentPane().add(previewPanel, BorderLayout.EAST);
-        
-        pack();
-        setSize(800, 600);
-        setLocationRelativeTo(null);
+        headerPanel.add(titlePanel);
+        return headerPanel;
     }
-
-    private void setupEventHandlers() {
-        browseButton.addActionListener(e -> browseImage());
-        analyzeButton.addActionListener(e -> analyzeImage());
-    }
-
-    private void browseImage() {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(
-            "Immagini", "jpg", "jpeg", "png", "gif", "bmp"));
+    
+    private static JPanel createControlPanel() {
+        JPanel controlPanel = new JPanel();
+        controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
+        controlPanel.setBorder(BorderFactory.createTitledBorder("🔧 Controlli"));
+        controlPanel.setPreferredSize(new Dimension(350, 0));
         
-        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            imagePathField.setText(selectedFile.getAbsolutePath());
-            updateImagePreview(selectedFile);
-            analyzeButton.setEnabled(true);
-        }
-    }
-
-    private void updateImagePreview(File imageFile) {
-        try {
-            BufferedImage img = ImageIO.read(imageFile);
-            if (img != null) {
-                ImageIcon icon = new ImageIcon(img.getScaledInstance(
-                    imagePreviewLabel.getWidth(), imagePreviewLabel.getHeight(), Image.SCALE_SMOOTH));
-                imagePreviewLabel.setIcon(icon);
-            }
-        } catch (IOException ex) {
-            logger.log(java.util.logging.Level.SEVERE, "Errore caricamento immagine", ex);
-            JOptionPane.showMessageDialog(this, "Errore nel caricamento dell'immagine", "Errore", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void analyzeImage() {
-        String imagePath = imagePathField.getText();
-        String fabricType = (String) fabricTypeCombo.getSelectedItem();
+        // Selezione tipo tessuto
+        JPanel fabricPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        fabricPanel.add(new JLabel("Tipo Tessuto:"));
+        fabricTypeCombo = new JComboBox<>(new String[]{
+            "Cotone", "Lino", "Seta", "Lana", "Poliestere", 
+            "Nylon", "Viscosa", "Misto", "Altro"
+        });
+        fabricPanel.add(fabricTypeCombo);
+        controlPanel.add(fabricPanel);
         
-        // Disabilita i controlli durante l'analisi
+        controlPanel.add(Box.createVerticalStrut(20));
+        
+        // Selezione immagine
+        JButton selectImageButton = new JButton("📂 Seleziona Immagine");
+        selectImageButton.setPreferredSize(new Dimension(200, 40));
+        selectImageButton.addActionListener(new SelectImageListener());
+        controlPanel.add(selectImageButton);
+        
+        controlPanel.add(Box.createVerticalStrut(10));
+        
+        // Anteprima immagine
+        imageLabel = new JLabel("Nessuna immagine selezionata");
+        imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        imageLabel.setBorder(BorderFactory.createLoweredBevelBorder());
+        imageLabel.setPreferredSize(new Dimension(300, 200));
+        imageLabel.setBackground(Color.LIGHT_GRAY);
+        imageLabel.setOpaque(true);
+        controlPanel.add(imageLabel);
+        
+        controlPanel.add(Box.createVerticalStrut(20));
+        
+        // Pulsante analisi
+        analyzeButton = new JButton("🔍 Analizza Difetti");
+        analyzeButton.setPreferredSize(new Dimension(200, 50));
+        analyzeButton.setBackground(new Color(70, 130, 180));
+        analyzeButton.setForeground(Color.WHITE);
+        analyzeButton.setFont(new Font("Arial", Font.BOLD, 16));
         analyzeButton.setEnabled(false);
-        browseButton.setEnabled(false);
-        progressBar.setVisible(true);
-        progressBar.setIndeterminate(true);
-        statusLabel.setText("Analisi in corso...");
+        analyzeButton.addActionListener(new AnalyzeListener());
+        controlPanel.add(analyzeButton);
         
-        // Esegui l'analisi in un thread separato
-        new SwingWorker<String, Void>() {
-            @Override
-            protected String doInBackground() throws Exception {
-                try {
-                    // 1. Converti l'immagine in base64
-                    String imageBase64 = encodeImageToBase64(imagePath);
-                    
-                    // 2. Prepara la richiesta all'API AI
-                    Map<String, Object> requestData = new HashMap<>();
-                    requestData.put("image", imageBase64);
-                    requestData.put("fabric_type", fabricType);
-                    
-                    // 3. Invia la richiesta (esempio con HttpClient)
-                    HttpClient client = HttpClient.newHttpClient();
-                    HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create("https://api.gemma-ai.com/analyze"))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(new ObjectMapper().writeValueAsString(requestData)))
-                        .build();
-                    
-                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                    
-                    // 4. Elabora la risposta
-                    if (response.statusCode() == 200) {
-                        return parseAnalysisResult(response.body());
-                    } else {
-                        throw new IOException("Errore API: " + response.statusCode());
-                    }
-                } catch (IOException | InterruptedException ex) {
-                    logger.log(java.util.logging.Level.SEVERE, "Errore analisi", ex);
-                    throw ex;
-                }
+        controlPanel.add(Box.createVerticalGlue());
+        
+        return controlPanel;
+    }
+    
+    private static JPanel createResultPanel() {
+        JPanel resultPanel = new JPanel(new BorderLayout());
+        resultPanel.setBorder(BorderFactory.createTitledBorder("📊 Risultati Analisi"));
+        
+        resultArea = new JTextArea();
+        resultArea.setEditable(false);
+        resultArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        resultArea.setBackground(new Color(248, 248, 248));
+        resultArea.setText("Seleziona un'immagine e clicca 'Analizza Difetti' per iniziare...");
+        resultArea.setWrapStyleWord(true);
+        resultArea.setLineWrap(true);
+        
+        JScrollPane scrollPane = new JScrollPane(resultArea);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        resultPanel.add(scrollPane, BorderLayout.CENTER);
+        
+        
+        // Pulsanti azioni
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton clearButton = new JButton("🗑️ Pulisci");
+        clearButton.addActionListener(e -> resultArea.setText(""));
+        
+        JButton saveButton = new JButton("💾 Salva Report");
+        saveButton.addActionListener(new SaveReportListener());
+        
+        buttonPanel.add(clearButton);
+        buttonPanel.add(saveButton);
+        resultPanel.add(buttonPanel, BorderLayout.SOUTH);
+        
+        return resultPanel;
+    }
+    
+    private static JPanel createStatusPanel() {
+        JPanel statusPanel = new JPanel(new BorderLayout());
+        statusPanel.setBorder(BorderFactory.createLoweredBevelBorder());
+        
+        statusLabel = new JLabel("Pronto");
+        statusLabel.setBorder(new EmptyBorder(5, 10, 5, 10));
+        statusPanel.add(statusLabel, BorderLayout.WEST);
+        
+        return statusPanel;
+    }
+    
+    // Listener per selezione immagine
+    private static class SelectImageListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setFileFilter(new FileNameExtensionFilter(
+                "Immagini (*.jpg, *.jpeg, *.png, *.bmp, *.gif)", 
+                "jpg", "jpeg", "png", "bmp", "gif"));
+            
+            int result = fileChooser.showOpenDialog(frame);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                selectedImagePath = selectedFile.getAbsolutePath();
+                
+                // Carica anteprima
+                loadImagePreview(selectedFile);
+                analyzeButton.setEnabled(true);
+                statusLabel.setText("Immagine selezionata: " + selectedFile.getName());
+            }
+        }
+    }
+    
+    // Listener per analisi
+    private static class AnalyzeListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (selectedImagePath == null) {
+                JOptionPane.showMessageDialog(frame, "Seleziona prima un'immagine!", 
+                    "Errore", JOptionPane.ERROR_MESSAGE);
+                return;
             }
             
-            @Override
-            protected void done() {
+            // Esegui analisi in background
+            SwingWorker<String, Void> worker = new SwingWorker<String, Void>() {
+                @Override
+                protected String doInBackground() throws Exception {
+                    SwingUtilities.invokeLater(() -> {
+                        analyzeButton.setEnabled(false);
+                        statusLabel.setText("Analisi in corso... Attendere...");
+                        resultArea.setText("🔄 Analizzando l'immagine con Gemma3:4b...\n" +
+                                          "Questo potrebbe richiedere alcuni minuti...");
+                    });
+                    
+                    String fabricType = (String) fabricTypeCombo.getSelectedItem();
+                    return FabricDefectAnalyzer.analyzeImageForDefects(selectedImagePath, fabricType);
+                }
+                
+                @Override
+                protected void done() {
+                    try {
+                        String result = get();
+                        resultArea.setText("✅ ANALISI COMPLETATA\n" +
+                                          "================================\n\n" + result);
+                        statusLabel.setText("Analisi completata con successo");
+                    } catch (Exception ex) {
+                        resultArea.setText("❌ ERRORE DURANTE L'ANALISI\n" +
+                                          "================================\n\n" + 
+                                          "Errore: " + ex.getMessage() + "\n\n" +
+                                          "Suggerimenti:\n" +
+                                          "• Verifica che Ollama sia in esecuzione\n" +
+                                          "• Controlla che il modello Gemma3:4b sia installato\n" +
+                                          "• Assicurati che l'immagine sia valida");
+                        statusLabel.setText("Errore durante l'analisi");
+                    } finally {
+                        analyzeButton.setEnabled(true);
+                    }
+                }
+            };
+            worker.execute();
+        }
+    }
+    
+    // Listener per salvare report
+    private static class SaveReportListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (resultArea.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Nessun report da salvare!", 
+                    "Avviso", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setSelectedFile(new File("report_analisi_tessuto.txt"));
+            
+            int result = fileChooser.showSaveDialog(frame);
+            if (result == JFileChooser.APPROVE_OPTION) {
                 try {
-                    String result = get();
-                    resultArea.setText(result);
-                    statusLabel.setText("Analisi completata");
-                } catch (InterruptedException | ExecutionException ex) {
-                    resultArea.setText("Errore: " + ex.getMessage());
-                    statusLabel.setText("Errore nell'analisi");
-                } finally {
-                    analyzeButton.setEnabled(true);
-                    browseButton.setEnabled(true);
-                    progressBar.setVisible(false);
+                    java.nio.file.Files.write(
+                        fileChooser.getSelectedFile().toPath(), 
+                        resultArea.getText().getBytes()
+                    );
+                    JOptionPane.showMessageDialog(frame, "Report salvato con successo!", 
+                        "Successo", JOptionPane.INFORMATION_MESSAGE);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(frame, "Errore nel salvare il file: " + ex.getMessage(), 
+                        "Errore", JOptionPane.ERROR_MESSAGE);
                 }
             }
-        }.execute();
-    }
-    
-    private String encodeImageToBase64(String imagePath) throws IOException {
-        byte[] fileContent = Files.readAllBytes(Paths.get(imagePath));
-        return Base64.getEncoder().encodeToString(fileContent);
-    }
-    
-    private String parseAnalysisResult(String jsonResponse) throws IOException {
-        // Parsing della risposta JSON
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.readTree(jsonResponse);
-        
-        // Costruisci il report (adatta alla risposta effettiva dell'API)
-        StringBuilder report = new StringBuilder();
-        report.append("RISULTATO ANALISI\n");
-        report.append("================\n\n");
-        report.append("Tipo tessuto: ").append(root.path("fabric_type").asText()).append("\n");
-        report.append("Difetti rilevati: ").append(root.path("defects_count").asInt()).append("\n\n");
-        
-        JsonNode defects = root.path("defects");
-        for (JsonNode defect : defects) {
-            report.append("- ").append(defect.path("type").asText())
-                 .append(": ").append(defect.path("description").asText())
-                 .append(" (gravità: ").append(defect.path("severity").asText()).append(")\n");
         }
-        
-        return report.toString();
     }
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
-    @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
-    private void initComponents() {
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
-
-        pack();
-    }// </editor-fold>                        
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
+    
+    private static void loadImagePreview(File imageFile) {
         try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
+            ImageIcon icon = new ImageIcon(imageFile.getAbsolutePath());
+            Image img = icon.getImage();
+            
+            // Ridimensiona per l'anteprima
+            int maxWidth = 280;
+            int maxHeight = 180;
+            int width = img.getWidth(null);
+            int height = img.getHeight(null);
+            
+            if (width > maxWidth || height > maxHeight) {
+                double scale = Math.min((double) maxWidth / width, (double) maxHeight / height);
+                width = (int) (width * scale);
+                height = (int) (height * scale);
+                img = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
             }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
+            
+            imageLabel.setIcon(new ImageIcon(img));
+            imageLabel.setText("");
+        } catch (Exception ex) {
+            imageLabel.setIcon(null);
+            imageLabel.setText("Errore nel caricamento dell'immagine");
         }
-        //</editor-fold>
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        
-        EventQueue.invokeLater(() -> {
-    GuiInterface frame = new GuiInterface();
-    frame.setTitle("Analizzatore Difetti Tessuti - PCTO v2.0");
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setVisible(true);
-}); // Aggiungi questa parentesi e punto e virgola
     }
-
-    // Variables declaration - do not modify                     
-    // End of variables declaration                   
 }
