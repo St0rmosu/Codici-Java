@@ -15,20 +15,7 @@ _Built with the tools and technologies:_
 ![NetBeans](https://img.shields.io/badge/-NetBeans-blueviolet?logo=apache-netbeans)
 ![GitHub](https://img.shields.io/badge/-GitHub-181717?logo=github)
 
----
 
-## 🔗 Table of Contents
-
-I. 📌 [Overview](#overview)  
-II. 🧠 [Features](#features)  
-III. 🧵 [Project Structure](#project-structure)  
-IV. 🚀 [Getting Started](#getting-started)  
-V. 🛣️ [Project Roadmap](#project-roadmap)  
-VI. 📚 [Contributing](#contributing)  
-VII. 🪪 [License](#license)  
-VIII. 🙌 [Acknowledgments](#acknowledgments)
-
----
 
 ## 📌 Overview
 
